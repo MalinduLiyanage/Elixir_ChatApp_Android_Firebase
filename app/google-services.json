@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "491796857296",
+    "project_id": "elixirchatapp-c311d",
+    "storage_bucket": "elixirchatapp-c311d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:491796857296:android:201132f40c58e5fb3fb9d5",
+        "android_client_info": {
+          "package_name": "com.malinduliyanage.elixir"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABIE0nB4TEJhREtB639syqMcl058up-mc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
