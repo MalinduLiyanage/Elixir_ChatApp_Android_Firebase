@@ -11,6 +11,7 @@ Allow Firebase Realtime DB and set rules as
 
 Allow Firebase Storage and set rules as<br>
 
+<pre><code>
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
@@ -20,4 +21,6 @@ service firebase.storage {
     }
   }
 }
+</code></pre>
+
 
