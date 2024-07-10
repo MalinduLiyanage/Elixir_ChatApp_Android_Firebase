@@ -1,15 +1,17 @@
-Setup Firebase google-services.json file in app directory.
-Allow Firebase Auth for Rmail/ Password<br>
-Allow Firebase Realtime DB and set rules as 
+1. Setup Firebase google-services.json file in app directory.
+2. Allow Firebase Auth for Rmail/ Password<br>
+3. Allow Firebase Realtime DB and set rules as 
 
+<pre><code>
 {
   "rules": {
     ".read": "auth != null",
     ".write": "auth != null"
   }
 }
+</code></pre>
 
-Allow Firebase Storage and set rules as<br>
+4. Allow Firebase Storage and set rules as
 
 <pre><code>
 rules_version = '2';
