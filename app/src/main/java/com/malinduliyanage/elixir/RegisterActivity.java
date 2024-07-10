@@ -78,14 +78,14 @@ public class RegisterActivity extends AppCompatActivity {
             String userId = firebaseUser.getUid();
             String creationDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
-            User user = new User("Elixir User","null", "null", "null", null, creationDate);
+            User user = new User("Elixir User","null", "null", "null", "null", creationDate);
 
             mDatabase.child("Users").child(userId).setValue(user)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                                Intent intent = new Intent(RegisterActivity.this, InitialUserDetailsActivity.class);
                                 startActivity(intent);
                                 finish();
                             } else {
