@@ -29,6 +29,12 @@
         android:theme="@style/Theme.Elixir"
         tools:targetApi="31">
         <activity
+            android:name=".ReceivedRequestsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SentRequestsActivity"
+            android:exported="false" />
+        <activity
             android:name=".InitialUserDetailsActivity"
             android:exported="false" />
         <activity

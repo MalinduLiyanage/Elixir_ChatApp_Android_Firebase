@@ -1,5 +1,6 @@
 package com.malinduliyanage.elixir;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -62,6 +63,7 @@ public class InitialUserDetailsActivity extends AppCompatActivity {
     private FirebaseStorage storage;
     private StorageReference storageReference;
     String profilePicpath = null;
+    private Uri profileImage = null;
 
     String[] REQUIRED_PERMISSIONS_ANDROID_12 = new String[]{
             android.Manifest.permission.INTERNET,
@@ -113,7 +115,11 @@ public class InitialUserDetailsActivity extends AppCompatActivity {
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateUser();
+                if(profileImage != null){
+                    uploadImageToFirebase(profileImage);
+                }else{
+                    updateUser();
+                }
             }
         });
 
@@ -135,6 +141,12 @@ public class InitialUserDetailsActivity extends AppCompatActivity {
         }
 
         if(!nameString.isEmpty() || !areaString.isEmpty() || !statusString.isEmpty()){
+
+            ProgressDialog pd = new ProgressDialog(InitialUserDetailsActivity.this);
+            pd.setMessage("Updating your Profile...");
+            pd.setCancelable(false);
+            pd.show();
+
             User user = new User(nameString, areaString, statusString, profilePicString, "null", creationDate);
 
             mDatabase.child("Users").child(userId).setValue(user)
@@ -142,10 +154,12 @@ public class InitialUserDetailsActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
+                                pd.dismiss();
                                 Intent intent = new Intent(InitialUserDetailsActivity.this, MainActivity.class);
                                 startActivity(intent);
                                 finish();
                             } else {
+                                pd.dismiss();
                                 Toast.makeText(InitialUserDetailsActivity.this, "Failed to update user", Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -222,18 +236,17 @@ public class InitialUserDetailsActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == IMAGE_PICK && data != null) {
-            Uri uri = data.getData();
+            profileImage = data.getData();
             try {
-                String path = uri.getPath();
+                String path = profileImage.getPath();
 
                 int rawIndex = path.indexOf("/raw/");
                 if (rawIndex != -1) {
                     path = path.substring(0, rawIndex) + path.substring(rawIndex + 5);
                 }
 
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), profileImage);
                 profileImg.setImageBitmap(bitmap);
-                uploadImageToFirebase(uri);
 
 
             } catch (IOException e) {
@@ -247,6 +260,11 @@ public class InitialUserDetailsActivity extends AppCompatActivity {
             String userId = mAuth.getCurrentUser().getUid();
             StorageReference ref = storageReference.child("profileImages/" + userId);
 
+            ProgressDialog pd = new ProgressDialog(InitialUserDetailsActivity.this);
+            pd.setMessage("Uploading your Profile Picture...");
+            pd.setCancelable(false);
+            pd.show();
+
             ref.putFile(uri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -255,6 +273,8 @@ public class InitialUserDetailsActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     profilePicpath = uri.toString();
+                                    updateUser();
+                                    pd.dismiss();
                                 }
                             });
                         }
@@ -263,6 +283,8 @@ public class InitialUserDetailsActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             // Handle unsuccessful uploads
+                            pd.dismiss();
+                            Toast.makeText(InitialUserDetailsActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
                             Log.e("InitialUserDetailsActivity", "Failed to upload image", e);
                         }
                     });

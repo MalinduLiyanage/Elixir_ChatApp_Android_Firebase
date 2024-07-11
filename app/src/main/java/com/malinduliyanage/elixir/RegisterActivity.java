@@ -1,5 +1,6 @@
 package com.malinduliyanage.elixir;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -58,15 +59,23 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void createAccount(String email, String password) {
+
+        ProgressDialog pd = new ProgressDialog(RegisterActivity.this);
+        pd.setMessage("Creating your account...");
+        pd.setCancelable(false);
+        pd.show();
+
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            pd.dismiss();
                             FirebaseUser user = mAuth.getCurrentUser();
                             addUserToDatabase(user);
                             Toast.makeText(RegisterActivity.this, "Registration successful.", Toast.LENGTH_SHORT).show();
                         } else {
+                            pd.dismiss();
                             Toast.makeText(RegisterActivity.this, "Registration failed.", Toast.LENGTH_SHORT).show();
                         }
                     }
