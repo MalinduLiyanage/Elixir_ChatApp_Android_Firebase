@@ -1,5 +1,7 @@
 package com.malinduliyanage.elixir;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,8 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,10 +36,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private String state = null;
+    private Context context;
+    private OnResumeCallback onResumeCallback;
 
-    public UserAdapter(List<User> userList, String state) {
+    public interface OnResumeCallback {
+        void triggerOnResume();
+    }
+
+    public UserAdapter(List<User> userList, String state, Context context, OnResumeCallback onResumeCallback) {
         this.userList = userList;
         this.state = state;
+        this.context = context;
+        this.onResumeCallback = onResumeCallback;
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
     }
@@ -54,7 +67,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         holder.areaTextView.setText("From : " + user.getArea());
 
         if(!user.getprofilepic().isEmpty()){
-            Picasso.get().load(user.getprofilepic()).into(holder.profileImageView);
+            Glide.with(context)
+                    .load(user.getprofilepic())
+                    .apply(new RequestOptions().placeholder(R.drawable.ic_user_profile)) // optional placeholder
+                    .into(holder.profileImageView);
+        }else{
+            holder.profileImageView.setImageResource(R.drawable.ic_user_profile);
         }
 
         if(state.equals("Suggestions")){
@@ -65,6 +83,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 public void onClick(View v) {
                     Toast.makeText(v.getContext(), "Request Sent", Toast.LENGTH_SHORT).show();
                     sendRequest(user.getUserId());
+
+                    if (onResumeCallback != null) {
+                        onResumeCallback.triggerOnResume();
+                    }
+
                 }
             });
 
@@ -74,8 +97,22 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             holder.userBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(v.getContext(), "Request Cancelled", Toast.LENGTH_SHORT).show();
-                    cancelRequest(user.getUserId());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                    //builder.setIcon(R.drawable.ic_welcome);
+                    builder.setTitle("Cancel Request to " + user.getName() + "?");
+                    builder.setMessage("They will see you have cancelled the request.");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("Yes", (DialogInterface.OnClickListener) (dialog, which) -> {
+                        Toast.makeText(v.getContext(), "Request Cancelled", Toast.LENGTH_SHORT).show();
+                        cancelRequest(user.getUserId());
+
+                    });
+                    builder.setNegativeButton("No", (DialogInterface.OnClickListener) (dialog, which) -> {
+                        dialog.cancel();
+                    });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+
                 }
             });
 

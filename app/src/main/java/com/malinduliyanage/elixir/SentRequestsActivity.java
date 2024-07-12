@@ -27,7 +27,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SentRequestsActivity extends AppCompatActivity {
+public class SentRequestsActivity extends AppCompatActivity implements UserAdapter.OnResumeCallback{
 
     private RecyclerView sentContainer;
     private UserAdapter userAdapter;
@@ -57,7 +57,7 @@ public class SentRequestsActivity extends AppCompatActivity {
         sentContainer.setVisibility(View.GONE);
 
         userList = new ArrayList<>();
-        userAdapter = new UserAdapter(userList,"Sent");
+        userAdapter = new UserAdapter(userList,"Sent",this,this);
         sentContainer.setAdapter(userAdapter);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -75,6 +75,11 @@ public class SentRequestsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadSentRequests();
+    }
+
+    @Override
+    public void triggerOnResume() {
+
     }
 
     private void loadSentRequests() {

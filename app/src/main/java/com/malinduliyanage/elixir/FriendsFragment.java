@@ -35,14 +35,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FriendsFragment extends Fragment {
+public class FriendsFragment extends Fragment implements UserAdapter.OnResumeCallback{
 
     private RecyclerView suggestionsContainer, friendsContainer;
     private UserAdapter userAdapter;
     private FriendAdapter friendAdapter;
     private List<User> userList;
     private List<User> friendList;
-    private DatabaseReference userReference, friendReference;
+    private DatabaseReference userReference, friendReference, sentReference, receiveReference;
     private ProgressBar progressUsers, progressFriends;
 
     @Override
@@ -70,7 +70,7 @@ public class FriendsFragment extends Fragment {
         suggestionsContainer.setLayoutManager(new LinearLayoutManager(getContext()));
         suggestionsContainer.setVisibility(View.GONE);
         userList = new ArrayList<>();
-        userAdapter = new UserAdapter(userList,"Suggestions");
+        userAdapter = new UserAdapter(userList,"Suggestions",getContext(),this);
         suggestionsContainer.setAdapter(userAdapter);
         userReference = FirebaseDatabase.getInstance().getReference("Users");
 
@@ -79,12 +79,25 @@ public class FriendsFragment extends Fragment {
         friendList = new ArrayList<>();
         friendAdapter = new FriendAdapter(friendList);
         friendsContainer.setAdapter(friendAdapter);
-        friendReference = FirebaseDatabase.getInstance().getReference("Friends").child(currentUserId);
 
-        loadUsers();
-        loadFriends();
+        friendReference = FirebaseDatabase.getInstance().getReference("Friends").child(currentUserId);
+        sentReference = FirebaseDatabase.getInstance().getReference("SentRequests").child(currentUserId);
+        receiveReference = FirebaseDatabase.getInstance().getReference("ReceivedRequests").child(currentUserId);
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadUsers();
+        loadFriends();
+    }
+
+    @Override
+    public void triggerOnResume() {
+        loadUsers();
+        loadFriends();
     }
 
     @Override
@@ -112,6 +125,65 @@ public class FriendsFragment extends Fragment {
 
     private void loadUsers() {
 
+        List<String> friendIds = new ArrayList<>();
+        List<String> sentRequestIds = new ArrayList<>();
+        List<String> receivedRequestIds = new ArrayList<>();
+
+        friendReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                friendIds.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String userId = snapshot.getKey();
+                    if (userId != null) {
+                        friendIds.add(userId);
+
+
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle possible errors.
+            }
+        });
+
+        sentReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                sentRequestIds.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String userId = snapshot.getKey();
+                    if (userId != null) {
+                        sentRequestIds.add(userId);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle possible errors.
+            }
+        });
+
+        receiveReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                receivedRequestIds.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String userId = snapshot.getKey();
+                    if (userId != null) {
+                        receivedRequestIds.add(userId);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle possible errors.
+            }
+        });
+
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String currentUserId = currentUser.getUid();
         userReference.addValueEventListener(new ValueEventListener() {
@@ -120,7 +192,8 @@ public class FriendsFragment extends Fragment {
                 userList.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     User user = snapshot.getValue(User.class);
-                    if (user != null && !snapshot.getKey().equals(currentUserId)) {
+                    if (user != null && !snapshot.getKey().equals(currentUserId) && !friendIds.contains(snapshot.getKey())
+                            && !sentRequestIds.contains(snapshot.getKey()) && !receivedRequestIds.contains(snapshot.getKey())) {
                         user.setUserId(snapshot.getKey());
                         userList.add(user);
                     }
@@ -135,7 +208,11 @@ public class FriendsFragment extends Fragment {
                 // Handle possible errors.
             }
         });
+
+
     }
+
+
 
     private void loadFriends() {
 
