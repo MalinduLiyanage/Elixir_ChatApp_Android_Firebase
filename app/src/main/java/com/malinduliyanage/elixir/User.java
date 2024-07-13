@@ -2,6 +2,7 @@ package com.malinduliyanage.elixir;
 
 public class User {
     private String userId;
+
     public String name;
     public String area;
     public String status;

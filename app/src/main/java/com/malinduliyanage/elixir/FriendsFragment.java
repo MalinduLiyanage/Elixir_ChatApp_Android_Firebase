@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -83,6 +85,9 @@ public class FriendsFragment extends Fragment implements UserAdapter.OnResumeCal
         friendReference = FirebaseDatabase.getInstance().getReference("Friends").child(currentUserId);
         sentReference = FirebaseDatabase.getInstance().getReference("SentRequests").child(currentUserId);
         receiveReference = FirebaseDatabase.getInstance().getReference("ReceivedRequests").child(currentUserId);
+
+        loadUsers();
+        loadFriends();
 
         return view;
     }
@@ -184,30 +189,36 @@ public class FriendsFragment extends Fragment implements UserAdapter.OnResumeCal
             }
         });
 
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String currentUserId = currentUser.getUid();
-        userReference.addValueEventListener(new ValueEventListener() {
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                userList.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    User user = snapshot.getValue(User.class);
-                    if (user != null && !snapshot.getKey().equals(currentUserId) && !friendIds.contains(snapshot.getKey())
-                            && !sentRequestIds.contains(snapshot.getKey()) && !receivedRequestIds.contains(snapshot.getKey())) {
-                        user.setUserId(snapshot.getKey());
-                        userList.add(user);
+            public void run() {
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                String currentUserId = currentUser.getUid();
+                userReference.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        userList.clear();
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            User user = snapshot.getValue(User.class);
+                            if (user != null && !snapshot.getKey().equals(currentUserId) && !friendIds.contains(snapshot.getKey())
+                                    && !sentRequestIds.contains(snapshot.getKey()) && !receivedRequestIds.contains(snapshot.getKey())) {
+                                user.setUserId(snapshot.getKey());
+                                userList.add(user);
+                            }
+                        }
+                        userAdapter.notifyDataSetChanged();
+                        progressUsers.setVisibility(View.GONE);
+                        suggestionsContainer.setVisibility(View.VISIBLE);
                     }
-                }
-                userAdapter.notifyDataSetChanged();
-                progressUsers.setVisibility(View.GONE);
-                suggestionsContainer.setVisibility(View.VISIBLE);
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle possible errors.
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        // Handle possible errors.
+                    }
+                });
             }
-        });
+        }, 2000);
 
 
     }

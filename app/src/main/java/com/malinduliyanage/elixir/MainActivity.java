@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
@@ -26,11 +28,24 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     FrameLayout fragLayout;
+    private DatabaseReference mDatabase;
+    private Handler handler;
+    private Runnable statusUpdater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         updateUI(currentUser);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -99,19 +116,80 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
         }
 
+        if(currentUser != null){
+            String uid = currentUser.getUid();
+            handler = new Handler();
+            statusUpdater = new Runnable() {
+                @Override
+                public void run() {
+                    onlineStatus(uid);
+                    handler.postDelayed(this, 5000);
+                }
+            };
+        }
+
     }
 
     private void updateUI(FirebaseUser user) {
         if (user != null) {
-            Toast.makeText(MainActivity.this, "Welcome " + user.getUid(), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this, "Welcome " + user.getUid(), Toast.LENGTH_SHORT).show();
 
         } else {
-            Toast.makeText(MainActivity.this, "No User here", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this, "No User here", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, WelcomeActivity.class);
             startActivity(intent);
             finish();
         }
     }
+
+    private void onlineStatus(String currentUser) {
+        String onlineTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+
+        mDatabase.child("Users").child(currentUser).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    HashMap<String, Object> userAttributes = new HashMap<>();
+
+                    String area = dataSnapshot.child("area").getValue(String.class);
+                    String compressedProfilePic = dataSnapshot.child("compressedProfilePic").getValue(String.class);
+                    String creationDate = dataSnapshot.child("creationDate").getValue(String.class);
+                    String name = dataSnapshot.child("name").getValue(String.class);
+                    String profilepic = dataSnapshot.child("profilepic").getValue(String.class);
+                    String status = dataSnapshot.child("status").getValue(String.class);
+
+                    userAttributes.put("area", area);
+                    userAttributes.put("compressedProfilePic", compressedProfilePic);
+                    userAttributes.put("creationDate", creationDate);
+                    userAttributes.put("name", name);
+                    userAttributes.put("profilepic", profilepic);
+                    userAttributes.put("status", status);
+                    userAttributes.put("active", onlineTime);
+
+                    mDatabase.child("Users").child(currentUser).updateChildren(userAttributes);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle database error
+                Log.d("UserAttributes", "Database error: " + databaseError.getMessage());
+            }
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        handler.post(statusUpdater); // Start the status updater
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        handler.removeCallbacks(statusUpdater); // Stop the status updater
+    }
+
 
 
 
