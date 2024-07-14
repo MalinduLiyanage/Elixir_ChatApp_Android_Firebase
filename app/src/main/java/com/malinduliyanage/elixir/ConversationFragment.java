@@ -236,8 +236,8 @@ public class ConversationFragment extends Fragment implements MessageAdapter.OnR
         loadMsgthread();
     }
 
-    private void onlineStatus(String currentUser, TextView receiverLastseen) {
-        database.child("Users").child(currentUser).addListenerForSingleValueEvent(new ValueEventListener() {
+    private void onlineStatus(String receivingUser, TextView receiverLastseen) {
+        database.child("Users").child(receivingUser).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {

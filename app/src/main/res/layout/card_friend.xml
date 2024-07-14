@@ -10,13 +10,30 @@
         android:orientation="vertical"
         android:gravity="center">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/profile_img"
+        <RelativeLayout
             android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:src="@drawable/ic_user_profile">
+            android:layout_height="70dp">
 
-        </de.hdodenhof.circleimageview.CircleImageView>
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profile_img"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/ic_user_profile">
+
+            </de.hdodenhof.circleimageview.CircleImageView>
+
+            <ImageView
+                android:id="@+id/active_indicator"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/ic_onlinestatus">
+
+            </ImageView>
+
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_weight="4"

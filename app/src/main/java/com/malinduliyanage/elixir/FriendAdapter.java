@@ -1,6 +1,7 @@
 package com.malinduliyanage.elixir;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +40,8 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private String state = null, currentUserId, conversationId = null;
+    private Handler handler;
+    private Runnable statusChecker;
 
     public FriendAdapter(List<User> friendList) {
         this.friendList = friendList;
@@ -60,6 +63,20 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
     public void onBindViewHolder(@NonNull FriendAdapter.FriendViewHolder holder, int position) {
         User user = friendList.get(position);
         holder.nameTextView.setText(user.getName());
+        holder.activeIndicator.setVisibility(View.INVISIBLE);
+
+        // Initialize the Handler and Runnable
+        handler = new Handler();
+        statusChecker = new Runnable() {
+            @Override
+            public void run() {
+                onlineStatus(user.getUserId(), holder.activeIndicator);
+                handler.postDelayed(this, 5000); // Re-run this runnable in 5 seconds
+            }
+        };
+
+        // Start the Runnable
+        handler.post(statusChecker);
 
         if(!user.getprofilepic().isEmpty()){
             Picasso.get().load(user.getprofilepic()).into(holder.profileImageView);
@@ -90,7 +107,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
     static class FriendViewHolder extends RecyclerView.ViewHolder {
 
         TextView nameTextView;
-        ImageView profileImageView;
+        ImageView profileImageView, activeIndicator;
         Button userBtn;
 
         public FriendViewHolder(@NonNull View itemView) {
@@ -98,6 +115,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
             nameTextView = itemView.findViewById(R.id.friend_nameTxt);
             profileImageView = itemView.findViewById(R.id.profile_img);
             userBtn = itemView.findViewById(R.id.chat_btn);
+            activeIndicator = itemView.findViewById(R.id.active_indicator);
         }
     }
 
@@ -167,6 +185,44 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendView
         }
 
         return null;
+    }
+
+    private void onlineStatus(String receivingUser, ImageView receiverLastseen) {
+        mDatabase.child("Users").child(receivingUser).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String lastSeen = dataSnapshot.child("active").getValue(String.class);
+                    if (lastSeen != null) {
+                        String currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+                        showActiveStatus(receiverLastseen, lastSeen, currentTime);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle database error
+                Log.d("UserAttributes", "Database error: " + databaseError.getMessage());
+            }
+        });
+    }
+
+    private void showActiveStatus(ImageView receiverLastseen, String lastSeen, String currentTime) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        try {
+            Date lastSeenDate = sdf.parse(lastSeen);
+            Date currentDate = sdf.parse(currentTime);
+
+            long diffInMillis = currentDate.getTime() - lastSeenDate.getTime();
+            long diffInSeconds = diffInMillis / 1000;
+
+            if (diffInSeconds <= 10) {
+                receiverLastseen.setVisibility(View.VISIBLE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

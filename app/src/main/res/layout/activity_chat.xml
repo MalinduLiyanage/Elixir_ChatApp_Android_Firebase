@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#818589"
     tools:context=".ChatActivity">
 
     <FrameLayout
@@ -30,7 +31,9 @@
             android:layout_centerVertical="true"
             android:layout_marginEnd="10dp"
             android:layout_marginRight="10dp"
-            android:hint="Type a message" />
+            android:hint="Type a message"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"/>
 
         <Button
             android:id="@+id/send_button"
