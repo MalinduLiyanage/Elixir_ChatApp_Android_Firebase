@@ -1,10 +1,12 @@
 package com.malinduliyanage.elixir;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -25,6 +27,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -45,7 +49,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ConversationFragment extends Fragment implements MessageAdapter.OnResumeCallback {
 
-    private String receiverId, receiverName, receiverImage, currentUserId, conversationId, lastSeen;
+    private String receiverId, receiverName, receiverImage, currentUserId, returnedconversationId, lastSeen;
     private FirebaseAuth mAuth;
     private CircleImageView receiverImageview;
     private TextView receiverNameTxt, receiverLastseen;
@@ -120,6 +124,7 @@ public class ConversationFragment extends Fragment implements MessageAdapter.OnR
             public void onConversationIdRetrieved(String conversationId) {
                 if (conversationId != null) {
                     msgDatabase = database.child("MessageThread").child(conversationId);
+                    returnedconversationId = conversationId;
                     loadMsgthread();
                 } else {
                     // Handle conversation ID not found
@@ -174,8 +179,6 @@ public class ConversationFragment extends Fragment implements MessageAdapter.OnR
             });
         }
     }
-
-
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.conversation_menu, menu);
@@ -186,7 +189,7 @@ public class ConversationFragment extends Fragment implements MessageAdapter.OnR
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_delete_conversation) {
-            Toast.makeText(getContext(), "Not implemented yet", Toast.LENGTH_SHORT).show();
+            deleteConversation();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -231,7 +234,6 @@ public class ConversationFragment extends Fragment implements MessageAdapter.OnR
         super.onResume();
         // Do not call loadMsgthread here as it will be called after obtaining conversation ID
     }
-
     @Override
     public void triggerOnResume() {
         loadMsgthread();
@@ -294,6 +296,45 @@ public class ConversationFragment extends Fragment implements MessageAdapter.OnR
         super.onDestroyView();
         // Stop the status checker when the view is destroyed
         handler.removeCallbacks(statusChecker);
+    }
+
+    private void deleteConversation() {
+        if (returnedconversationId != null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            //builder.setIcon(R.drawable.ic_welcome);
+            builder.setTitle("Delete Conversation?");
+            builder.setMessage("Are you sure you want to delete this conversation for both parties? This action cannot be undone.");
+            builder.setCancelable(false);
+            builder.setPositiveButton("Yes", (DialogInterface.OnClickListener) (dialog, which) -> {
+                database.child("Conversations").child(currentUserId).child(receiverId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        database.child("Conversations").child(receiverId).child(currentUserId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                msgDatabase.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        Toast.makeText(getContext(), "Conversation deleted", Toast.LENGTH_SHORT).show();
+                                        getActivity().finish();
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+
+            });
+            builder.setNegativeButton("No", (DialogInterface.OnClickListener) (dialog, which) -> {
+                dialog.cancel();
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        }else{
+            Toast.makeText(getContext(), "Conversation not found", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 
