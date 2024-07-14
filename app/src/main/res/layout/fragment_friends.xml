@@ -60,6 +60,27 @@
 
             </RelativeLayout>
 
+            <RelativeLayout
+                android:id="@+id/empty_friends"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="90dp"
+                    android:textAlignment="center"
+                    android:maxLines="2"
+                    android:gravity="center"
+                    android:textColor="@color/ash"
+                    android:text="You don't have any Friends yet. Try to send some requests.">
+
+                </TextView>
+
+            </RelativeLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -186,6 +186,7 @@ public class ConversationFragment extends Fragment implements MessageAdapter.OnR
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_delete_conversation) {
+            Toast.makeText(getContext(), "Not implemented yet", Toast.LENGTH_SHORT).show();
             return true;
         }
         return super.onOptionsItemSelected(item);

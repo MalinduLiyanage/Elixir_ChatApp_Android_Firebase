@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ChatsFragment">
 
     <LinearLayout
@@ -33,16 +34,38 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center">
 
                 <ProgressBar
                     android:id="@+id/loadingPanel_chatlist"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent">
 
                 </ProgressBar>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:visibility="gone"
+                android:id="@+id/empty_chats"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_margin="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="90dp"
+                    android:textAlignment="center"
+                    android:maxLines="2"
+                    android:gravity="center"
+                    android:textColor="@color/ash"
+                    android:text="You don't have any conversations yet. Try to chat with your Friends.">
+
+                </TextView>
 
             </RelativeLayout>
 

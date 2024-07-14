@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,6 +47,7 @@ public class FriendsFragment extends Fragment implements UserAdapter.OnResumeCal
     private List<User> friendList;
     private DatabaseReference userReference, friendReference, sentReference, receiveReference;
     private ProgressBar progressUsers, progressFriends;
+    private RelativeLayout emptyFriendTxt;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,6 +67,7 @@ public class FriendsFragment extends Fragment implements UserAdapter.OnResumeCal
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String currentUserId = currentUser.getUid();
 
+        emptyFriendTxt = view.findViewById(R.id.empty_friends);
         progressUsers = view.findViewById(R.id.loadingPanel);
         progressFriends = view.findViewById(R.id.loadingPanel_friends);
 
@@ -223,8 +226,6 @@ public class FriendsFragment extends Fragment implements UserAdapter.OnResumeCal
 
     }
 
-
-
     private void loadFriends() {
 
         List<String> friendIds = new ArrayList<>();
@@ -254,13 +255,21 @@ public class FriendsFragment extends Fragment implements UserAdapter.OnResumeCal
                         friendAdapter.notifyDataSetChanged();
                         progressFriends.setVisibility(View.GONE);
                         friendsContainer.setVisibility(View.VISIBLE);
+
+                        // Check if the friend list is empty and show a toast
+                        if (friendList.isEmpty()) {
+                            emptyFriendTxt.setVisibility(View.VISIBLE);
+                        }else{
+                            emptyFriendTxt.setVisibility(View.GONE);
+                        }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                        // Handle database error
                     }
                 });
+
             }
 
             @Override

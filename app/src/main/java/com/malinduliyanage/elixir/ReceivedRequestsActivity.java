@@ -158,6 +158,7 @@ public class ReceivedRequestsActivity extends AppCompatActivity implements UserA
             }
         });
     }
+
     private void onlineStatus(String currentUser) {
         String onlineTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 

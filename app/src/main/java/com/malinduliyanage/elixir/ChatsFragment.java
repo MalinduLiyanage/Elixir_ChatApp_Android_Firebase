@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
@@ -41,6 +42,7 @@ public class ChatsFragment extends Fragment implements UserAdapter.OnResumeCallb
     private List<User> userList;
     private DatabaseReference userReference, chatlistReference;
     private ProgressBar progressChatlist;
+    private RelativeLayout emptyChatsTxt;
 
     @Nullable
     @Override
@@ -61,6 +63,7 @@ public class ChatsFragment extends Fragment implements UserAdapter.OnResumeCallb
         String currentUserId = currentUser.getUid();
 
         progressChatlist = view.findViewById(R.id.loadingPanel_chatlist);
+        emptyChatsTxt = view.findViewById(R.id.empty_chats);
 
         chatlistContainer = view.findViewById(R.id.chatlist_container);
         chatlistContainer.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -83,19 +86,11 @@ public class ChatsFragment extends Fragment implements UserAdapter.OnResumeCallb
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_logout) {
-            signOut();
-            Toast.makeText(getActivity(), "User Logged out", Toast.LENGTH_SHORT).show();
+        if (id == R.id.action_about) {
+            Toast.makeText(getActivity(), "Not Implemented yet", Toast.LENGTH_SHORT).show();
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void signOut() {
-        mAuth.signOut();
-        Intent intent = new Intent(getActivity(), MainActivity.class);
-        startActivity(intent);
-        getActivity().finish();
     }
 
     @Override
@@ -127,6 +122,11 @@ public class ChatsFragment extends Fragment implements UserAdapter.OnResumeCallb
                     }
                 }
 
+                if (chatListIds.isEmpty()) {
+                    emptyChatsTxt.setVisibility(View.VISIBLE);
+                }else{
+                    emptyChatsTxt.setVisibility(View.GONE);
+                }
                 loadUsers(chatListIds);
             }
 

@@ -34,7 +34,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="18dp"
-                    android:text="Sample Message"
                     android:textColor="@color/white">
 
                 </TextView>
@@ -53,7 +52,6 @@
                     android:textSize="13dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="2024-07-13 16:18:42"
                     android:textColor="@color/white">
 
                 </TextView>

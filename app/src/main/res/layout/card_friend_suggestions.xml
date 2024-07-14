@@ -30,7 +30,6 @@
                     android:id="@+id/friend_nameTxt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Test User"
                     android:maxLength="20"
                     android:textSize="20dp"
                     android:textStyle="bold"
@@ -43,7 +42,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
-                    android:text="We are all humans..."
                     android:maxLength="25"
                     android:textStyle="italic">
 
@@ -53,8 +51,7 @@
                     android:id="@+id/friend_areaTxt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLines="1"
-                    android:text="From : Colombo">
+                    android:maxLines="1">
 
                 </TextView>
 
