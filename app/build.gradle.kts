@@ -51,6 +51,7 @@ dependencies {
     implementation ("de.hdodenhof:circleimageview:3.1.0")
     implementation ("com.squareup.picasso:picasso:2.8")
     implementation ("com.github.bumptech.glide:glide:4.12.0")
+    implementation ("io.getstream:stream-webrtc-android:1.1.1")
 
 
 }

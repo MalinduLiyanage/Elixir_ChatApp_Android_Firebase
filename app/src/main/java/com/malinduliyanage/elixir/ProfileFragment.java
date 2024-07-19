@@ -1,7 +1,10 @@
 package com.malinduliyanage.elixir;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -98,6 +101,10 @@ public class ProfileFragment extends Fragment {
                 builder.setMessage("Are you sure you want to logout from Elixir?");
                 builder.setCancelable(false);
                 builder.setPositiveButton("Yes", (DialogInterface.OnClickListener) (dialog, which) -> {
+                    SharedPreferences sharedPreferences = getContext().getSharedPreferences("Startup", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("isStarted", "no");
+                    editor.apply();
                     logOut();
                 });
                 builder.setNegativeButton("No", (DialogInterface.OnClickListener) (dialog, which) -> {

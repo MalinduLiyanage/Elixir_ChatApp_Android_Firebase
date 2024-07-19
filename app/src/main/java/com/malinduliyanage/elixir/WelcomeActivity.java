@@ -1,6 +1,7 @@
 package com.malinduliyanage.elixir;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
@@ -40,6 +41,25 @@ public class WelcomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        SharedPreferences sharedPreferences = getSharedPreferences("Startup", MODE_PRIVATE);
+        String checkStart = sharedPreferences.getString("isStarted","");
+
+        if (checkStart.equals("yes")){
+            finish();
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences = getSharedPreferences("Startup", MODE_PRIVATE);
+        String checkStart = sharedPreferences.getString("isStarted","");
+
+        if (checkStart.equals("yes")){
+            finish();
+        }
 
     }
 }
