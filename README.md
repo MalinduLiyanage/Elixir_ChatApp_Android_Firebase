@@ -19,7 +19,7 @@ Elixir is a Android Chatting application which is based on Java, with Firebase R
 <img src="https://github.com/user-attachments/assets/9d5c98af-d633-4c9f-8ff4-e8e60b86bd7e" width="250" height="480">
 
 <h2>How to Config</h2>
-1. Setup Firebase google-services.json file in app directory.<br><tab>(Or you can do it by opening the repo in Android Studio)
+1. Setup Firebase google-services.json file in app directory.<br><tab>(Or you can do it by opening the repo in Android Studio)</tab></br>
 2. Allow Firebase Auth for Email/ Password<br>
 3. Allow Firebase Realtime DB and set rules as 
 
