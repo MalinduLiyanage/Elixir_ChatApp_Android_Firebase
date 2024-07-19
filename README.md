@@ -1,5 +1,5 @@
-1. Setup Firebase google-services.json file in app directory.
-2. Allow Firebase Auth for Rmail/ Password<br>
+1. Setup Firebase google-services.json file in app directory.<br><tab>(Or you can do it by opening the repo in Android Studio)
+2. Allow Firebase Auth for Email/ Password<br>
 3. Allow Firebase Realtime DB and set rules as 
 
 <pre><code>
